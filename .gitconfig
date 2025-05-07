@@ -1,0 +1,71 @@
+[user]
+    name = Phil Dufault
+    email = phil@dufault.info
+    signingkey = /Users/phil/.ssh/id_ed25519.pub
+[color]
+    ui = auto
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+[color "diff"]
+    whitespace = red reverse
+[core]
+    whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
+    excludesfile = /Users/pdufault/.gitignore
+[alias]
+    pr = pull --rebase
+    st = status
+    sts = status -s
+    a = add
+    ci = commit
+    br = branch
+    co = checkout
+    oc = checkout
+    df = diff
+    dfc = diff --cached
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    lol = log --graph --decorate --pretty=oneline --abbrev-commit
+    lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+    ls = ls-files
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    cloen = clone
+    purr = pull --rebase
+    la=!git config -l | grep alias | cut -c 7-
+    logs = log --show-signature
+    cis = commit -S
+    staash = stash --all
+[branch]
+	sort = -committerdate
+[merge]
+    tool = vimdiff
+[push]
+    default = current
+[difftool "sourcetree"]
+    cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+    path = 
+[mergetool "sourcetree"]
+    cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+    trustExitCode = true
+[filter "lfs"]
+    smudge = git-lfs smudge %f
+    required = true
+    clean = git-lfs clean %f
+[credential]
+    helper = osxkeychain
+[commit]
+    gpgsign = false
+[init]
+    defaultBranch = main
+[gpg]
+    format = ssh

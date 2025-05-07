@@ -1,0 +1,152 @@
+
+# squelch stupid 'zsh is the new default shell' in macos
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+export PYTHONSTARTUP="$HOME/.pythonrc"
+
+export HISTSIZE=10000
+
+_complete_ssh_hosts ()
+{
+        COMPREPLY=()
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        comp_ssh_hosts=`cat ~/.ssh/known_hosts | \
+                        cut -f 1 -d ' ' | \
+                        sed -e s/,.*//g | \
+                        grep -v ^# | \
+                        uniq | \
+                        grep -v "\[" ;
+                cat ~/.ssh/config | \
+                        grep "^Host " | \
+                        awk '{print $2}'
+                `
+        COMPREPLY=( $(compgen -W "${comp_ssh_hosts}" -- $cur))
+        return 0
+}
+complete -F _complete_ssh_hosts ssh
+
+export SSH_ENV="$HOME/.ssh/agent-macbook-pro"
+export AGENTALIVE=0
+ 
+# Start an ssh-agent and write out the details to $SSH_ENV
+function agent_start() {
+  echo -n " [i] Initializing a new SSH agent..."
+  /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+  echo -n "$SSH_ENV "
+  chmod 600 "${SSH_ENV}"
+  source "${SSH_ENV}" > /dev/null
+  echo
+}
+ 
+# Reconnect to the last ssh-agent that was loaded
+function agent_restore_or_start() {
+  if [[ -f $SSH_ENV ]]
+  then
+    source $SSH_ENV
+    agent_check_alive
+  else
+    agent_start
+    agent_check_alive
+  fi
+}
+ 
+function agent_check_alive() {
+  # Check to see if there are any ssh-agents running on the PID
+  # that we loaded from the agent file.
+  if [[ $SSH_AGENT_PID ]]; then
+    AGENTALIVE=$(ps wwaux | grep [s]sh-agent |grep -c $SSH_AGENT_PID)
+    if [[ $AGENTALIVE -ne 1 ]]
+    then
+      # Check to see if this is an interactive session. If so then echo stuff. If not, don't.
+      if [[ $- =~ "i" ]]
+      then
+        agent_start
+        AGENTALIVE=$(ps wwaux | grep [s]sh-agent |grep -c $SSH_AGENT_PID)
+      fi
+    fi
+  else
+    AGENTALIVE=0
+  fi
+ 
+  # If the agent is alive, check to see if there are any loaded keys
+  if [[ $AGENTALIVE -eq 1 ]]; then
+    # Check to see if this is an interactive session. If so then echo stuff. If not, don't.
+    if [[ $- =~ "i" ]]
+    then
+      no_key_loaded=$(ssh-add -l | grep -c "The agent has no identities.")
+      if [[ $no_key_loaded -eq 1 ]]; then
+        echo " [!] no loaded ssh keys"
+        if [[ -e ~/.ssh/id_rsa ]] || [[ -e ~/.ssh/id_ed25519 ]]; then
+          ssh-add
+        fi
+      else
+      # If you suffix your keys with _rsa or _dsa and want that trimmed out, use this line
+      # var=$(ssh-add -l | awk '{print $3}' | sed -e 's,.*/,,g' -e 's,_rsa,,g' -e 's,_dsa,,g' | xargs)
+      # Otherwise use this line
+        var=$(ssh-add -l | awk '{print $3}' | sed -e 's,.*/,,g' | xargs)
+        echo " [x] loaded ssh keys: $var"
+      fi
+    fi
+  fi
+}
+
+agent_restore_or_start
+
+function testRedirect() { curl -v "$1" 2>&1 >/dev/null | grep Location; }
+
+
+alias ll='ls -l --color=auto'
+alias ls='ls --color=auto'
+alias pip3="python3 -m pip"
+alias tf="terraform"
+function titp() { terraform init && terraform plan; }
+function ta () { terraform apply -auto-approve; }
+
+function dockerCleanup() { docker ps -a -q|xargs docker rm;docker images -q|xargs docker rmi -f;}
+
+function verifySSLchain() {
+  echo "Q" | openssl s_client -showcerts -host "$1" -port 443
+}
+
+function checkSSL() {
+  curl -v -u 'digital:notwebchannel' https://$1 2>&1 >/dev/null | grep -A6 'Server certificate';
+}
+
+function gitSetOriginMaster() {
+  git branch --set-upstream-to=origin/master master;
+}
+
+function gitSetOriginMain() {
+  git branch --set-upstream-to=origin/main main;
+}
+
+function gcp-what-project() {
+  gcloud config get-value project;
+}
+alias gcpCurrentProject="gcloud config list --format 'value(core.project)'"
+
+alias path='echo -e ${PATH//:/\\n}'
+
+function capsToggle() { node ~/src/capsToggle/src/server.js "$*"; }
+
+function googleProject() { gcloud config get-value project; }
+
+export PROMPT_COMMAND='history -a'
+
+alias ..='cd ..'
+
+function checkScopesGH() { curl -sS -f -I -H "Authorization: token $1" https://api.github.com | grep -i x-oauth-scopes:; }
+
+# gcloud bash completion
+source "$(brew --prefix)/share/google-cloud-sdk/path.bash.inc"
+
+# pack bash completion
+#. $(pack completion)
+
+# gsed as default for sed
+PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+
+alias k=kubectl
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+eval "$(direnv hook bash)"
+
