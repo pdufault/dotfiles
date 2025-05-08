@@ -127,7 +127,7 @@ alias gcpCurrentProject="gcloud config list --format 'value(core.project)'"
 
 alias path='echo -e ${PATH//:/\\n}'
 
-function capsToggle() { node ~/src/capsToggle/src/server.js "$*"; }
+function capsToggle() { node ~/src/capsToggle/index.js "$*"; }
 
 function googleProject() { gcloud config get-value project; }
 
