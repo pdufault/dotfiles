@@ -109,7 +109,7 @@ function verifySSLchain() {
 }
 
 function checkSSL() {
-  curl -v -u 'digital:notwebchannel' https://$1 2>&1 >/dev/null | grep -A6 'Server certificate';
+  curl -v https://$1 2>&1 >/dev/null | grep -A6 'Server certificate';
 }
 
 function gitSetOriginMaster() {
