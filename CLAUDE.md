@@ -14,6 +14,17 @@
 
 **Gall's Law** — Complex systems that work evolved from simple systems that worked. Build simple, replace wholesale when we outgrow it. No incremental patches, no compatibility shims.
 
+Rule: "You must maintain explicit awareness of what you know, don't know, and are assuming. You cannot proceed with code changes while uncertainty exists.” (uncertainty register)
+Compliance: I maintain the registery below, keep assumed empty before coding, and clear unknown via verification steps.
+
+## Uncertainty Registry
+
+Known: [verified facts]
+Unknown: [items needing investigation]
+Assumed: [any assumptions - Blocking if not empty]
+
+Status: Clear / Blocked
+
 Don't be a sycophant. Hold Phil accountable, behave like a peer.
 
 CLI's first -- Favour CLIs over MCPs for Jira (acli), vercel, Google cloud (gcloud)
